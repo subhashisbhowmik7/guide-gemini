@@ -17,7 +17,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
   const renderContent = () => {
     if (typeof message.content === 'object' && message.content !== null && 'type' in message.content) {
-      const content = message.content as { type: string; data: any[] };
+      const content = message.content as { type: string; data: any };
       const { type, data } = content;
       if (type === 'pillars') {
         return (
@@ -26,7 +26,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               Strategic Pillars
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {data.map((pillar, index) => (
+              {data.map((pillar: any, index: number) => (
                 <PillarCard key={index} {...pillar} index={index} />
               ))}
             </div>
@@ -39,9 +39,43 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent mt-4">
               Implementation Strategies
             </h3>
-            {data.map((strategy, index) => (
+            {data.map((strategy: any, index: number) => (
               <StrategyCard key={index} {...strategy} index={index} />
             ))}
+          </div>
+        );
+      }
+      if (type === 'actionPlan') {
+        return (
+          <div className="space-y-6 animate-fade-in-up">
+            <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              Your Strategic Action Plan
+            </h3>
+            <div className="gradient-card p-6 rounded-2xl border border-border">
+              <p className="text-foreground leading-relaxed mb-6 text-lg">{data.summary}</p>
+              <div className="space-y-6">
+                {data.actionPlan.map((category: any, idx: number) => (
+                  <div key={idx} className="animate-fade-in-up" style={{ animationDelay: `${idx * 100}ms` }}>
+                    <h4 className="text-lg font-bold text-secondary mb-3 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg gradient-secondary flex items-center justify-center shadow-glow">
+                        <span className="text-white font-bold text-sm">{idx + 1}</span>
+                      </div>
+                      {category.category}
+                    </h4>
+                    <ul className="space-y-2 ml-10">
+                      {category.actions.map((action: string, actionIdx: number) => (
+                        <li key={actionIdx} className="flex items-start gap-2 text-muted-foreground">
+                          <svg className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className="flex-1">{action}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         );
       }

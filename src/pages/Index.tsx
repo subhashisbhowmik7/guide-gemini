@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { WizardData, Pillar, ChatMessageData, MessageSender } from '../types';
-import { generatePillarsAndStrategies } from '../services/geminiService';
+import { generatePillarsAndStrategies, generateFinalActionPlan } from '../services/geminiService';
 import { conversationFlow, ConversationPoint } from '../lib/conversationFlow';
 
 import StepIndicator from '../components/StepIndicator';
@@ -126,11 +126,29 @@ export default function Index() {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
         addMessage(BOT, `Sorry, I encountered an error: ${errorMessage}. Please try again.`);
-      } finally {
-        setIsAwaitingApiResponse(false);
-      }
+        } finally {
+            setIsAwaitingApiResponse(false);
+        }
     }
 
+    // After Step 7 (last question), generate final action plan
+    if (currentPoint.key === 'recircleActions') {
+        setIsAwaitingApiResponse(true);
+        addMessage(BOT, <div className="flex items-center gap-3"><LoadingSpinner /> <span className="font-medium">Creating your comprehensive action plan...</span></div>, [], false);
+        try {
+            console.log('📋 Generating final action plan after step 7');
+            const finalPlan = await generateFinalActionPlan(updatedData);
+            
+            addMessage(BOT, "Perfect! I've compiled everything into a comprehensive action plan for you.");
+            addMessage(BOT, { type: 'actionPlan', data: finalPlan } as any);
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+            addMessage(BOT, `Sorry, I encountered an error generating the final plan: ${errorMessage}`);
+        } finally {
+            setIsAwaitingApiResponse(false);
+        }
+    }
+    
     const nextIndex = conversationIndex + 1;
     setConversationIndex(nextIndex);
     getNextBotMessage(nextIndex);
