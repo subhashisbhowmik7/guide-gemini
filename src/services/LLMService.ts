@@ -1,17 +1,20 @@
 import { Step1Data, Step2Data, Pillar, Strategy, WizardData } from '../types';
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+const VITE_AZUREOPENAI_API_KEY = import.meta.env.VITE_AZUREOPENAI_API_KEY;
+const VITE_GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/AZUREOPENAI-2.0-flash-exp:generateContent';
+const AZUREOPENAI_API_URL = 'https://iao-poc-dev.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-01-01-preview';
+
 
 export const generatePillarsAndStrategies = async (
   step1: Step1Data,
   step2: Step2Data
 ): Promise<{ pillars: Pillar[]; strategies: Strategy[] }> => {
-  console.log('🔄 Calling Gemini API for pillars and strategies...', { step1, step2 });
+  console.log('🔄 Calling AZUREOPENAI API for pillars and strategies...', { step1, step2 });
 
-  if (!GEMINI_API_KEY) {
-    console.error('❌ VITE_GEMINI_API_KEY not found in environment variables');
-    throw new Error('Gemini API key is not configured. Please add VITE_GEMINI_API_KEY to your .env file');
+  if (!VITE_AZUREOPENAI_API_KEY) {
+    console.error('❌ VITE_AZUREOPENAI_API_KEY not found in environment variables');
+    throw new Error('AZUREOPENAI API key is not configured. Please add VITE_AZUREOPENAI_API_KEY to your .env file');
   }
 
   const prompt = `Based on the following investment and tool details, generate strategic pillars and implementation strategies.
@@ -51,40 +54,38 @@ Return ONLY valid JSON in this exact format:
   ]
 }`;
 
+  console.log('🔄 AZUREOPENAI prompt:', prompt )
+
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    const response = await fetch(AZUREOPENAI_API_URL, {
+        method: 'POST',
+        headers: {
+      'Content-Type': 'application/json',
+      'api-key': VITE_AZUREOPENAI_API_KEY,
+
+    },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        }
-      })
-    });
+      messages: [
+        { role: 'system', content: 'You are a strategic assistant that outputs structured JSON.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 2048
+    })});
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Gemini API error:', response.status, errorText);
-      throw new Error(`Gemini API returned ${response.status}: ${errorText}`);
+      console.error('❌ AZUREOPENAI API error:', response.status, errorText);
+      throw new Error(`AZUREOPENAI API returned ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('✅ Gemini API raw response:', data);
+    console.log('✅ AZUREOPENAI API raw response:', data);
 
-    const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const textContent = data.choices?.[0]?.message?.content?.trim();
     if (!textContent) {
-      console.error('❌ No text content in Gemini response:', data);
-      throw new Error('Invalid response format from Gemini API');
+      console.error('❌ No text content in AZUREOPENAI response:', data);
+      throw new Error('Invalid response format from AZUREOPENAI API');
     }
 
     // Extract JSON from markdown code blocks if present
@@ -96,11 +97,11 @@ Return ONLY valid JSON in this exact format:
     }
 
     const parsedData = JSON.parse(jsonText);
-    console.log('✅ Parsed Gemini data:', parsedData);
+    console.log('✅ Parsed AZUREOPENAI data:', parsedData);
 
     return parsedData;
   } catch (error) {
-    console.error('❌ Error calling Gemini API:', error);
+    console.error('❌ Error calling AZUREOPENAI API:', error);
     
     // Fallback to mock data if API fails
     console.warn('⚠️ Using fallback mock data');
@@ -164,11 +165,11 @@ Return ONLY valid JSON in this exact format:
 export const generateFinalActionPlan = async (
   wizardData: WizardData
 ): Promise<{ actionPlan: { category: string; actions: string[] }[]; summary: string }> => {
-  console.log('🔄 Calling Gemini API for final action plan...', { wizardData });
+  console.log('🔄 Calling AZUREOPENAI API for final action plan...', { wizardData });
 
-  if (!GEMINI_API_KEY) {
-    console.error('❌ VITE_GEMINI_API_KEY not found');
-    throw new Error('Gemini API key is not configured');
+  if (!VITE_AZUREOPENAI_API_KEY) {
+    console.error('❌ VITE_AZUREOPENAI_API_KEY not found');
+    throw new Error('AZUREOPENAI API key is not configured');
   }
 
   const prompt = `Based on all the collected data from this strategic planning session, generate a comprehensive final action plan.
@@ -223,7 +224,7 @@ Return ONLY valid JSON in this exact format:
 }`;
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`${AZUREOPENAI_API_URL}?key=${VITE_AZUREOPENAI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -245,16 +246,16 @@ Return ONLY valid JSON in this exact format:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Gemini API error:', response.status, errorText);
-      throw new Error(`Gemini API returned ${response.status}`);
+      console.error('❌ AZUREOPENAI API error:', response.status, errorText);
+      throw new Error(`AZUREOPENAI API returned ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('✅ Gemini API final plan response:', data);
+    console.log('✅ AZUREOPENAI API final plan response:', data);
 
     const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!textContent) {
-      throw new Error('Invalid response format from Gemini API');
+      throw new Error('Invalid response format from AZUREOPENAI API');
     }
 
     let jsonText = textContent.trim();

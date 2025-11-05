@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { WizardData, Pillar, ChatMessageData, MessageSender } from '../types';
-import { generatePillarsAndStrategies, generateFinalActionPlan } from '../services/geminiService';
+import { generatePillarsAndStrategies, generateFinalActionPlan } from '../services/LLMService';
 import { conversationFlow, ConversationPoint } from '../lib/conversationFlow';
 
+import { useMsal } from "@azure/msal-react";
 import StepIndicator from '../components/StepIndicator';
 import ChatWindow from '../components/chat/ChatWindow';
 import ChatInput from '../components/chat/ChatInput';
@@ -23,6 +24,7 @@ export default function Index() {
     step5: { integrationMethod: null },
     step6: { outcome: null },
     step7: { recircleActions: [] },
+    
   });
 
   const [conversationIndex, setConversationIndex] = useState(0);
@@ -30,6 +32,8 @@ export default function Index() {
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [isAwaitingApiResponse, setIsAwaitingApiResponse] = useState(false);
   const wizardDataRef = useRef(wizardData);
+
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
     wizardDataRef.current = wizardData;
@@ -95,7 +99,7 @@ export default function Index() {
         BOT,
         <div className="flex items-center gap-3">
           <LoadingSpinner />
-          <span className="font-medium">Generating your strategy with Gemini...</span>
+          <span className="font-medium">Generating your strategy with AI...</span>
         </div>,
         [],
         false

@@ -15,14 +15,23 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
 
   const isOptionType = currentQuestion?.type === 'options' || currentQuestion?.type === 'checkbox';
 
+  // 🧠 Reset state when question changes
   useEffect(() => {
-    setInputValue('');
     setCheckedItems([]);
+    // 👇 only clear if no placeholder defined
+    if (!currentQuestion?.placeholder) {
+      setInputValue('');
+    } else {
+      setInputValue(currentQuestion.placeholder);
+    }
+
+    // focus only for free-text questions
     if (textareaRef.current && !isOptionType) {
       textareaRef.current.focus();
     }
   }, [currentQuestion, isOptionType]);
 
+  // 🔠 Handle manual typing
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
     if (textareaRef.current) {
@@ -31,12 +40,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
     }
   };
 
+  // ✅ Checkbox handler
   const handleCheckboxChange = (value: string) => {
     setCheckedItems((prev) =>
       prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
     );
   };
 
+  // 🚀 Form submit logic
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (currentQuestion?.type === 'checkbox') {
@@ -50,12 +61,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
     }
   };
 
+  // 💡 Option button click
   const handleOptionClick = (value: string) => {
     if (!disabled) {
       onSubmit(value);
     }
   };
 
+  // ✨ Dynamic rendering for different question types
   const renderInputArea = () => {
     if (disabled && isBotTyping) {
       return (
@@ -70,10 +83,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
       );
     }
 
-    if (!currentQuestion || disabled) {
-      return null;
-    }
+    if (!currentQuestion || disabled) return null;
 
+    // 🟦 Multiple-choice buttons
     if (currentQuestion.type === 'options') {
       return (
         <div className="flex flex-wrap gap-3 px-6 py-4">
@@ -94,6 +106,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
       );
     }
 
+    // 🟩 Checkbox group
     if (currentQuestion.type === 'checkbox') {
       return (
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
@@ -126,6 +139,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
       );
     }
 
+    // 📝 Default text input
     return (
       <form onSubmit={handleSubmit} className="flex items-end gap-3 px-6 py-4">
         <div className="flex-1 relative">
@@ -139,7 +153,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
                 handleSubmit();
               }
             }}
-            placeholder="Type your response here..."
+            placeholder={currentQuestion?.placeholder || 'Type your response here...'}
             rows={1}
             className="w-full p-4 bg-card border-2 border-border rounded-2xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none transition-smooth text-foreground placeholder:text-muted-foreground"
             disabled={disabled}
