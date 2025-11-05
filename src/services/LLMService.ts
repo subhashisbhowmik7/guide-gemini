@@ -224,25 +224,21 @@ Return ONLY valid JSON in this exact format:
 }`;
 
   try {
-    const response = await fetch(`${AZUREOPENAI_API_URL}?key=${VITE_AZUREOPENAI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    const response = await fetch(AZUREOPENAI_API_URL, {
+        method: 'POST',
+        headers: {
+      'Content-Type': 'application/json',
+      'api-key': VITE_AZUREOPENAI_API_KEY,
+
+    },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.8,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        }
-      })
-    });
+      messages: [
+        { role: 'system', content: 'You are a strategic assistant that outputs structured JSON.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 2048
+    })});
 
     if (!response.ok) {
       const errorText = await response.text();
