@@ -6,6 +6,11 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  NODE_VERSION: '20.x'
+  VITE_AZUREOPENAI_API_KEY: ${{ secrets.VITE_AZUREOPENAI_API_KEY }}
+  VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -15,12 +20,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22.x'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-      - name: Install dependencies and build
-        run: |
-          npm ci
-          npm run build
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_AZUREOPENAI_API_KEY: ${{ secrets.VITE_AZUREOPENAI_API_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
@@ -29,3 +39,22 @@ jobs:
           slot-name: 'Production'
           package: ./dist
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_41BAF54F17004E88BA6E3EB12E74827E }}
+
+      - name: Configure Azure Web App Settings
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: 'aistrategy-demo-app'
+          app-settings-json: |
+            [
+              {
+                "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                "value": "${{ env.NODE_VERSION }}",
+                "slotSetting": false
+              },
+              {
+                "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+                "value": "false",
+                "slotSetting": false
+              }
+            ]
+        id: settings
