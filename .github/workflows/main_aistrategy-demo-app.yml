@@ -51,5 +51,5 @@ jobs:
         with:
           app-name: 'aistrategy-demo-app'
           slot-name: 'Production'
-          package: .
+          package: ./dist
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_41BAF54F17004E88BA6E3EB12E74827E }}
