@@ -32,6 +32,11 @@ jobs:
           VITE_AZUREOPENAI_API_KEY: ${{ secrets.VITE_AZUREOPENAI_API_KEY }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
@@ -41,20 +46,6 @@ jobs:
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_41BAF54F17004E88BA6E3EB12E74827E }}
 
       - name: Configure Azure Web App Settings
-        uses: azure/appservice-settings@v1
-        with:
-          app-name: 'aistrategy-demo-app'
-          app-settings-json: |
-            [
-              {
-                "name": "WEBSITE_NODE_DEFAULT_VERSION",
-                "value": "${{ env.NODE_VERSION }}",
-                "slotSetting": false
-              },
-              {
-                "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
-                "value": "false",
-                "slotSetting": false
-              }
-            ]
-        id: settings
+        run: |
+          az webapp config appsettings set --name aistrategy-demo-app --resource-group ai-strategy-demo-rg --settings WEBSITE_NODE_DEFAULT_VERSION="${{ env.NODE_VERSION }}" SCM_DO_BUILD_DURING_DEPLOYMENT=false
+          az webapp config set --name aistrategy-demo-app --resource-group ai-strategy-demo-rg --startup-file "pm2 serve /home/site/wwwroot --no-daemon --spa"
