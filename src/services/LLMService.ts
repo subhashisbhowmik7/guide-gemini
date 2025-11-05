@@ -201,10 +201,10 @@ ${wizardData.step6.outcome}
 ${Array.isArray(wizardData.step7.recircleActions) ? wizardData.step7.recircleActions.join(', ') : wizardData.step7.recircleActions}
 
 **Strategic Pillars Already Identified:**
-${wizardData.step3.pillars.map(p => `- ${p.title}: ${p.description}`).join('\n')}
+${Array.isArray(wizardData.step3.pillars) ? wizardData.step3.pillars.map(p => `- ${p.title}: ${p.description}`).join('\n') : 'None yet'}
 
 **Strategies Already Defined:**
-${wizardData.step4.strategies.map(s => `- ${s.title}: ${s.description}`).join('\n')}
+${Array.isArray(wizardData.step4.strategies) ? wizardData.step4.strategies.map(s => `- ${s.title}: ${s.description}`).join('\n') : 'None yet'}
 
 **Task:**
 Create a comprehensive final action plan with:

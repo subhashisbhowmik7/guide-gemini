@@ -107,11 +107,31 @@ export default function Index() {
       try {
         const result = await generatePillarsAndStrategies(updatedData.step1, updatedData.step2);
         const defaultPillars: Pillar[] = [
-          { title: 'Governance', description: '', actionItems: [] },
-          { title: 'Efficiency', description: '', actionItems: [] },
-          { title: 'Security', description: '', actionItems: [] },
-          { title: 'Adoption', description: '', actionItems: [] },
-          { title: 'Usability', description: '', actionItems: [] },
+          { 
+            title: 'Governance', 
+            description: 'Establish clear oversight, accountability, and decision-making frameworks to ensure strategic alignment and compliance.',
+            actionItems: ['Define roles and responsibilities', 'Create governance committees', 'Establish approval workflows', 'Set up regular review cycles']
+          },
+          { 
+            title: 'Efficiency', 
+            description: 'Optimize processes and resources to maximize productivity while minimizing waste and redundancy.',
+            actionItems: ['Identify process bottlenecks', 'Automate repetitive tasks', 'Streamline workflows', 'Measure and track KPIs']
+          },
+          { 
+            title: 'Security', 
+            description: 'Implement comprehensive security measures to protect data, systems, and operations from threats and vulnerabilities.',
+            actionItems: ['Conduct security audits', 'Implement access controls', 'Establish data protection policies', 'Train staff on security protocols']
+          },
+          { 
+            title: 'Adoption', 
+            description: 'Drive user engagement and ensure successful implementation through effective change management and training.',
+            actionItems: ['Develop training programs', 'Create user documentation', 'Establish support channels', 'Gather and act on user feedback']
+          },
+          { 
+            title: 'Usability', 
+            description: 'Enhance user experience through intuitive design, accessibility, and responsive interfaces that meet user needs.',
+            actionItems: ['Conduct usability testing', 'Simplify user interfaces', 'Ensure accessibility standards', 'Optimize for mobile devices']
+          },
         ];
         const uniqueGeneratedPillars = result.pillars.filter(
           (p) => !defaultPillars.some((dp) => dp.title.toLowerCase() === p.title.toLowerCase())
@@ -184,16 +204,16 @@ export default function Index() {
 
   return (
     <div className="flex flex-col lg:flex-row items-stretch justify-center min-h-screen gap-6 p-4 md:p-8 max-w-[1600px] mx-auto">
-      <div className="lg:w-80 flex-shrink-0">
+      <div className="lg:w-80 flex-shrink-0 h-[85vh]">
         <StepIndicator currentStep={currentStep > TOTAL_STEPS ? TOTAL_STEPS : currentStep} totalSteps={TOTAL_STEPS} />
       </div>
 
       <div className="flex-1 h-[85vh] flex flex-col glass-effect rounded-3xl shadow-elevated overflow-hidden border border-border/30">
         <div className="p-6 border-b border-border bg-card/50 backdrop-blur-sm flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-primary shadow-glow flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl gradient-primary shadow-glow flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-white"
+                className="w-7 h-7 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -202,12 +222,12 @@ export default function Index() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                 />
               </svg>
             </div>
             <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              AI Strategy Assistant
+              Strategic Advisory Platform
             </h1>
           </div>
           <button

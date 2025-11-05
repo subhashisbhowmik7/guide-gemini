@@ -8,33 +8,63 @@ interface StepIndicatorProps {
 
 const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }) => {
   const steps = [
-    { number: 1, label: 'Initial Assessment', icon: '🎯', emoji: '🎯' },
-    { number: 2, label: 'Coverage Analysis', icon: '📊', emoji: '📊' },
-    { number: 3, label: 'Strategic Pillars', icon: '🏛️', emoji: '🏛️' },
-    { number: 4, label: 'Implementation Strategies', icon: '🚀', emoji: '🚀' },
-    { number: 5, label: 'Integration Method', icon: '🔗', emoji: '🔗' },
-    { number: 6, label: 'Expected Outcome', icon: '✨', emoji: '✨' },
-    { number: 7, label: 'Priority Actions', icon: '⚡', emoji: '⚡' },
+    { 
+      number: 1, 
+      label: 'Initial Assessment', 
+      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+    },
+    { 
+      number: 2, 
+      label: 'Coverage Analysis', 
+      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+    },
+    { 
+      number: 3, 
+      label: 'Strategic Pillars', 
+      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+    },
+    { 
+      number: 4, 
+      label: 'Implementation Strategies', 
+      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+    },
+    { 
+      number: 5, 
+      label: 'Integration Method', 
+      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+    },
+    { 
+      number: 6, 
+      label: 'Expected Outcome', 
+      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+    },
+    { 
+      number: 7, 
+      label: 'Priority Actions', 
+      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+    },
   ];
 
   const progress = (currentStep / totalSteps) * 100;
 
   return (
-    <div className="h-full glass-effect rounded-3xl shadow-elevated p-6 border border-border/30 sticky top-4 overflow-hidden relative">
+    <div className="h-full glass-effect rounded-3xl shadow-elevated p-6 border border-border/30 sticky top-4 overflow-y-auto relative">
       {/* Ambient background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
       
       <div className="relative z-10">
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl gradient-primary shadow-glow flex items-center justify-center animate-pulse-glow">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 rounded-2xl gradient-primary shadow-glow flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
             </div>
             <h2 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               Progress
             </h2>
           </div>
-          <p className="text-sm text-muted-foreground ml-13">
+          <p className="text-sm text-muted-foreground ml-15">
             Step {currentStep} of {totalSteps}
           </p>
         </div>
@@ -75,7 +105,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
                   {isCompleted ? (
                     <Check className="w-6 h-6 animate-scale-in" />
                   ) : (
-                    <span className="text-xl">{step.icon}</span>
+                    <div className={isCurrent ? 'text-primary' : 'text-current'}>{step.icon}</div>
                   )}
                   
                   {/* Ripple effect for current step */}

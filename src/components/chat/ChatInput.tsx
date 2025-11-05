@@ -93,12 +93,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
             <button
               key={opt.value}
               onClick={() => handleOptionClick(opt.value)}
-              className="group relative px-6 py-3.5 rounded-xl font-semibold transition-all duration-300 overflow-hidden hover:scale-105 hover:shadow-glow border-2 border-transparent glass-effect animate-fade-in-up"
+              className="group relative px-6 py-3.5 rounded-xl font-semibold transition-all duration-300 overflow-hidden hover:scale-105 hover:shadow-glow border-2 glass-effect animate-fade-in-up bg-card/90"
               style={{ animationDelay: `${index * 50}ms` }}
             >
               <div className="absolute inset-0 gradient-primary opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-              <div className="absolute inset-0 border-2 border-primary/20 rounded-xl group-hover:border-primary/60 transition-all duration-300"></div>
-              <span className="relative z-10 bg-gradient-primary bg-clip-text text-transparent group-hover:text-white transition-all duration-300 font-bold">
+              <div className="absolute inset-0 border-2 border-primary/30 rounded-xl group-hover:border-primary transition-all duration-300"></div>
+              <span className="relative z-10 text-primary group-hover:text-white transition-all duration-300 font-bold">
                 {opt.label}
               </span>
               {/* Shimmer effect */}
@@ -117,7 +117,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
             {currentQuestion.options?.map((opt, index) => (
               <label
                 key={opt.value}
-                className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all duration-300 cursor-pointer group glass-effect shadow-sm hover:shadow-card animate-fade-in-up hover:scale-[1.02]"
+                className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all duration-300 cursor-pointer group glass-effect shadow-sm hover:shadow-card animate-fade-in-up hover:scale-[1.02] bg-card/90"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="relative">
@@ -125,7 +125,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
                     type="checkbox"
                     checked={checkedItems.includes(opt.value)}
                     onChange={() => handleCheckboxChange(opt.value)}
-                    className="peer w-5 h-5 rounded-lg border-2 border-muted-foreground/30 text-primary focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer"
+                    className="peer w-5 h-5 rounded-lg border-2 border-primary/40 text-primary focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer checked:bg-primary checked:border-primary"
                   />
                   <div className="absolute inset-0 rounded-lg bg-gradient-primary opacity-0 peer-checked:opacity-20 transition-opacity pointer-events-none" />
                 </div>
