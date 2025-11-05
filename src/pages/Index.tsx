@@ -183,10 +183,12 @@ export default function Index() {
   const isInputDisabled = isBotTyping || isAwaitingApiResponse || conversationIndex >= conversationFlow.length;
 
   return (
-    <div className="flex flex-col lg:flex-row items-start justify-center min-h-screen gap-6 p-4 md:p-8">
-      <StepIndicator currentStep={currentStep > TOTAL_STEPS ? TOTAL_STEPS : currentStep} totalSteps={TOTAL_STEPS} />
+    <div className="flex flex-col lg:flex-row items-stretch justify-center min-h-screen gap-6 p-4 md:p-8 max-w-[1600px] mx-auto">
+      <div className="lg:w-80 flex-shrink-0">
+        <StepIndicator currentStep={currentStep > TOTAL_STEPS ? TOTAL_STEPS : currentStep} totalSteps={TOTAL_STEPS} />
+      </div>
 
-      <div className="w-full lg:flex-1 max-w-5xl h-[85vh] flex flex-col glass-effect rounded-3xl shadow-elevated overflow-hidden">
+      <div className="flex-1 h-[85vh] flex flex-col glass-effect rounded-3xl shadow-elevated overflow-hidden border border-border/30">
         <div className="p-6 border-b border-border bg-card/50 backdrop-blur-sm flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl gradient-primary shadow-glow flex items-center justify-center">

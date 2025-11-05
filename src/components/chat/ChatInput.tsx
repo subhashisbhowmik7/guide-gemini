@@ -74,11 +74,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
       return (
         <div className="flex items-center gap-3 px-6 py-4">
           <div className="flex gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '300ms' }}></span>
+            <span className="w-2.5 h-2.5 rounded-full gradient-primary animate-bounce shadow-glow" style={{ animationDelay: '0ms' }}></span>
+            <span className="w-2.5 h-2.5 rounded-full gradient-primary animate-bounce shadow-glow" style={{ animationDelay: '150ms' }}></span>
+            <span className="w-2.5 h-2.5 rounded-full gradient-primary animate-bounce shadow-glow" style={{ animationDelay: '300ms' }}></span>
           </div>
-          <span className="text-sm text-muted-foreground font-medium">AI Assistant is thinking...</span>
+          <span className="text-sm text-muted-foreground font-medium animate-pulse">AI is crafting your response...</span>
         </div>
       );
     }
@@ -89,17 +89,20 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
     if (currentQuestion.type === 'options') {
       return (
         <div className="flex flex-wrap gap-3 px-6 py-4">
-          {currentQuestion.options?.map((opt) => (
+          {currentQuestion.options?.map((opt, index) => (
             <button
               key={opt.value}
               onClick={() => handleOptionClick(opt.value)}
-              className="group relative px-6 py-3 rounded-xl font-semibold transition-smooth overflow-hidden hover:scale-105"
+              className="group relative px-6 py-3.5 rounded-xl font-semibold transition-all duration-300 overflow-hidden hover:scale-105 hover:shadow-glow border-2 border-transparent glass-effect animate-fade-in-up"
+              style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="absolute inset-0 gradient-primary opacity-10 group-hover:opacity-100 transition-smooth"></div>
-              <div className="absolute inset-0 border-2 border-primary/20 rounded-xl group-hover:border-primary/40 transition-smooth"></div>
-              <span className="relative text-foreground group-hover:text-white transition-smooth">
+              <div className="absolute inset-0 gradient-primary opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+              <div className="absolute inset-0 border-2 border-primary/20 rounded-xl group-hover:border-primary/60 transition-all duration-300"></div>
+              <span className="relative z-10 bg-gradient-primary bg-clip-text text-transparent group-hover:text-white transition-all duration-300 font-bold">
                 {opt.label}
               </span>
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
             </button>
           ))}
         </div>
@@ -110,30 +113,40 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
     if (currentQuestion.type === 'checkbox') {
       return (
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
-          <div className="space-y-2">
-            {currentQuestion.options?.map((opt) => (
+          <div className="space-y-3">
+            {currentQuestion.options?.map((opt, index) => (
               <label
                 key={opt.value}
-                className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/50 transition-smooth cursor-pointer group gradient-card shadow-sm hover:shadow-card"
+                className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all duration-300 cursor-pointer group glass-effect shadow-sm hover:shadow-card animate-fade-in-up hover:scale-[1.02]"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <input
-                  type="checkbox"
-                  checked={checkedItems.includes(opt.value)}
-                  onChange={() => handleCheckboxChange(opt.value)}
-                  className="w-5 h-5 rounded-lg border-2 border-primary/30 text-primary focus:ring-2 focus:ring-primary/20 transition-smooth"
-                />
-                <span className="flex-1 text-foreground font-medium group-hover:text-primary transition-smooth">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={checkedItems.includes(opt.value)}
+                    onChange={() => handleCheckboxChange(opt.value)}
+                    className="peer w-5 h-5 rounded-lg border-2 border-muted-foreground/30 text-primary focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer"
+                  />
+                  <div className="absolute inset-0 rounded-lg bg-gradient-primary opacity-0 peer-checked:opacity-20 transition-opacity pointer-events-none" />
+                </div>
+                <span className="flex-1 text-foreground font-medium group-hover:text-primary transition-all duration-300">
                   {opt.label}
                 </span>
+                {checkedItems.includes(opt.value) && (
+                  <span className="text-primary font-bold animate-scale-in">✓</span>
+                )}
               </label>
             ))}
           </div>
           <button
             type="submit"
             disabled={checkedItems.length === 0}
-            className="w-full gradient-primary text-white font-semibold py-4 px-6 rounded-xl shadow-glow hover:shadow-elevated transition-smooth disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
+            className="relative w-full gradient-primary text-white font-bold py-4 px-6 rounded-xl shadow-glow hover:shadow-elevated transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] overflow-hidden group"
           >
-            Submit Selection
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              Submit Selection {checkedItems.length > 0 && `(${checkedItems.length})`}
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
           </button>
         </form>
       );
@@ -142,7 +155,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
     // 📝 Default text input
     return (
       <form onSubmit={handleSubmit} className="flex items-end gap-3 px-6 py-4">
-        <div className="flex-1 relative">
+        <div className="flex-1 relative group">
           <textarea
             ref={textareaRef}
             value={inputValue}
@@ -155,24 +168,29 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
             }}
             placeholder={currentQuestion?.placeholder || 'Type your response here...'}
             rows={1}
-            className="w-full p-4 bg-card border-2 border-border rounded-2xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none transition-smooth text-foreground placeholder:text-muted-foreground"
+            className="w-full p-4 pr-20 glass-effect border-2 border-border rounded-2xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none transition-all duration-300 text-foreground placeholder:text-muted-foreground hover:border-primary/30"
             disabled={disabled}
           />
+          <div className="absolute right-3 bottom-3 text-xs text-muted-foreground/60 group-focus-within:text-primary transition-colors flex items-center gap-1">
+            <span>Press</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono">Enter</kbd>
+          </div>
         </div>
         <button
           type="submit"
           disabled={disabled || !inputValue.trim()}
-          className="gradient-primary text-white p-4 rounded-2xl shadow-glow hover:shadow-elevated transition-smooth disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 hover:scale-105"
+          className="relative gradient-primary text-white p-4 rounded-2xl shadow-glow hover:shadow-elevated transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 hover:scale-110 overflow-hidden group"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-6 w-6 relative z-10 transform group-hover:translate-y-[-2px] group-hover:rotate-12 transition-transform duration-300"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
           </svg>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
         </button>
       </form>
     );
