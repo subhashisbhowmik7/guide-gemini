@@ -8,6 +8,7 @@ import StepIndicator from '../components/StepIndicator';
 import ChatWindow from '../components/chat/ChatWindow';
 import ChatInput from '../components/chat/ChatInput';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { set } from 'date-fns';
 
 const TOTAL_STEPS = 7;
 
@@ -32,6 +33,7 @@ export default function Index() {
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [isAwaitingApiResponse, setIsAwaitingApiResponse] = useState(false);
   const wizardDataRef = useRef(wizardData);
+  const loadingMessageIdRef = useRef<string | null>(null);
 
   const [inputValue, setInputValue] = useState("");
 
@@ -53,10 +55,41 @@ export default function Index() {
     });
   };
 
+  const addLoadingMessage = (message: string): string => {
+    const loadingId = `loading-${Date.now()}-${Math.random()}`;
+    loadingMessageIdRef.current = loadingId;
+    
+    setMessages((prev) => {
+      const updatedMessages = prev.map((m) => ({ ...m, isAwaitingInput: false }));
+      const newMessage: ChatMessageData = {
+        id: loadingId,
+        sender: BOT,
+        content: (
+          <div className="flex items-center gap-3">
+            <LoadingSpinner />
+            <span className="font-medium">{message}</span>
+          </div>
+        ),
+        isAwaitingInput: false,
+      };
+      return [...updatedMessages, newMessage];
+    });
+    
+    return loadingId;
+  };
+
+  const removeLoadingMessage = () => {
+    if (loadingMessageIdRef.current) {
+      setMessages((prev) => prev.filter(m => m.id !== loadingMessageIdRef.current));
+      loadingMessageIdRef.current = null;
+    }
+  };
+
   const getNextBotMessage = useCallback((index: number) => {
     if (index >= conversationFlow.length) {
+      // All steps completed - set to final step
+      setCurrentStep(TOTAL_STEPS);
       addMessage(BOT, "Thank you! You've completed the strategy session. You can now start over.", [], false);
-      setCurrentStep(TOTAL_STEPS + 1);
       return;
     }
     const point = conversationFlow[index];
@@ -93,19 +126,20 @@ export default function Index() {
     });
     setWizardData(updatedData);
 
+    // HANDLE STEP 2 COMPLETION - Generate Pillars and Strategies
     if (currentPoint.key === 'actual') {
       setIsAwaitingApiResponse(true);
-      addMessage(
-        BOT,
-        <div className="flex items-center gap-3">
-          <LoadingSpinner />
-          <span className="font-medium">Generating your strategy with AI...</span>
-        </div>,
-        [],
-        false
-      );
+      addLoadingMessage('Generating your strategy with AI...');
+      
       try {
+        console.log('🔄 Calling API to generate pillars and strategies...');
         const result = await generatePillarsAndStrategies(updatedData.step1, updatedData.step2);
+        console.log('✅ API returned result:', result);
+        
+        // Define default pillars that will be populated with API data
+        const defaultPillarTitles = ['Governance', 'Efficiency', 'Security', 'Adoption', 'Usability'];
+        
+        // Create default pillars structure
         const defaultPillars: Pillar[] = [
           { 
             title: 'Governance', 
@@ -133,46 +167,101 @@ export default function Index() {
             actionItems: ['Conduct usability testing', 'Simplify user interfaces', 'Ensure accessibility standards', 'Optimize for mobile devices']
           },
         ];
-        const uniqueGeneratedPillars = result.pillars.filter(
-          (p) => !defaultPillars.some((dp) => dp.title.toLowerCase() === p.title.toLowerCase())
+        
+        // Override default pillars with API-generated ones if they exist
+        const pillarsFromAPI = result.pillars || [];
+        console.log('📊 Pillars from API:', pillarsFromAPI);
+        
+        // Map to update defaults or add new ones
+        const updatedDefaultPillars = defaultPillars.map(defaultPillar => {
+          const apiPillar = pillarsFromAPI.find(
+            p => p.title.toLowerCase() === defaultPillar.title.toLowerCase()
+          );
+          // If API returned data for this pillar, use it; otherwise keep default
+          return apiPillar || defaultPillar;
+        });
+        
+        // Add any additional pillars from API that aren't in defaults
+        const additionalPillars = pillarsFromAPI.filter(
+          apiPillar => !defaultPillarTitles.some(
+            title => title.toLowerCase() === apiPillar.title.toLowerCase()
+          )
         );
-        const combinedPillars = [...defaultPillars, ...uniqueGeneratedPillars];
+        
+        const allPillars = [...updatedDefaultPillars, ...additionalPillars];
+        console.log('📋 Final combined pillars:', allPillars);
 
-        setWizardData((prev) => ({
-          ...prev,
-          step3: { ...prev.step3, pillars: combinedPillars },
-          step4: { ...prev.step4, strategies: result.strategies },
-        }));
-
+        // Update wizard data with the combined pillars and strategies
+        const newWizardData = {
+          ...updatedData,
+          step3: { ...updatedData.step3, pillars: allPillars },
+          step4: { ...updatedData.step4, strategies: result.strategies || [] },
+        };
+        
+        setWizardData(newWizardData);
+        
+        // Remove loading message and stop API state
+        removeLoadingMessage();
         setIsAwaitingApiResponse(false);
+        
+        // Small delay to ensure state updates
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
         addMessage(BOT, "I've analyzed your input and generated the following strategic pillars and strategies based on it.");
-        addMessage(BOT, { type: 'pillars', data: combinedPillars });
-        addMessage(BOT, { type: 'strategies', data: result.strategies });
+        addMessage(BOT, { type: 'pillars', data: allPillars });
+        addMessage(BOT, { type: 'strategies', data: result.strategies || [] });
+        
       } catch (err) {
+        console.error('❌ Error in handleUserInput:', err);
+        removeLoadingMessage();
+        setIsAwaitingApiResponse(false);
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
         addMessage(BOT, `Sorry, I encountered an error: ${errorMessage}. Please try again.`);
-        setIsAwaitingApiResponse(false);
       }
+      
+      // Move to next question
+      const nextIndex = conversationIndex + 1;
+      setConversationIndex(nextIndex);
+      getNextBotMessage(nextIndex);
+      return; // Exit early to prevent duplicate progression
     }
 
-    // After Step 7 (last question), generate final action plan
+    // HANDLE STEP 7 COMPLETION - Generate Final Action Plan
     if (currentPoint.key === 'recircleActions') {
         setIsAwaitingApiResponse(true);
-        addMessage(BOT, <div className="flex items-center gap-3"><LoadingSpinner /> <span className="font-medium">Creating your comprehensive action plan...</span></div>, [], false);
+        addLoadingMessage('Creating your comprehensive action plan...');
+        
         try {
             console.log('📋 Generating final action plan after step 7');
             const finalPlan = await generateFinalActionPlan(updatedData);
+            console.log('✅ Final plan received:', finalPlan);
             
+            // Remove loading message and stop API state
+            removeLoadingMessage();
             setIsAwaitingApiResponse(false);
+            
+            // Small delay to ensure state updates
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
             addMessage(BOT, "Perfect! I've compiled everything into a comprehensive action plan for you.");
             addMessage(BOT, { type: 'actionPlan', data: finalPlan } as any);
+            
         } catch (err) {
+            console.error('❌ Error generating final plan:', err);
+            removeLoadingMessage();
+            setIsAwaitingApiResponse(false);
             const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
             addMessage(BOT, `Sorry, I encountered an error generating the final plan: ${errorMessage}`);
-            setIsAwaitingApiResponse(false);
         }
+        
+        // Move to completion
+        const nextIndex = conversationIndex + 1;
+        setConversationIndex(nextIndex);
+        getNextBotMessage(nextIndex);
+        return; // Exit early
     }
     
+    // For all other steps, just move to next question normally
     const nextIndex = conversationIndex + 1;
     setConversationIndex(nextIndex);
     getNextBotMessage(nextIndex);
@@ -193,6 +282,7 @@ export default function Index() {
     setCurrentStep(1);
     setIsBotTyping(false);
     setIsAwaitingApiResponse(false);
+    loadingMessageIdRef.current = null;
 
     setTimeout(() => {
       addMessage(BOT, "Alright, let's start over from the beginning.", [], false);
@@ -203,12 +293,12 @@ export default function Index() {
   const isInputDisabled = isBotTyping || isAwaitingApiResponse || conversationIndex >= conversationFlow.length;
 
   return (
-    <div className="flex flex-col lg:flex-row items-stretch justify-center min-h-screen gap-6 p-4 md:p-8 max-w-[1600px] mx-auto">
-      <div className="lg:w-80 flex-shrink-0 h-[85vh]">
+    <div className="flex flex-col lg:flex-row items-stretch justify-center min-h-screen gap-6 p-2 md:p-4 max-w-[1600px] mx-auto">
+      <div className="lg:w-80 flex-shrink-0 h-[95vh]">
         <StepIndicator currentStep={currentStep > TOTAL_STEPS ? TOTAL_STEPS : currentStep} totalSteps={TOTAL_STEPS} />
       </div>
 
-      <div className="flex-1 h-[85vh] flex flex-col glass-effect rounded-3xl shadow-elevated overflow-hidden border border-border/30">
+      <div className="flex-1 h-[95vh] flex flex-col glass-effect rounded-3xl shadow-elevated overflow-hidden border border-border/30">
         <div className="p-6 border-b border-border bg-card/50 backdrop-blur-sm flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl gradient-primary shadow-glow flex items-center justify-center">
@@ -226,9 +316,14 @@ export default function Index() {
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Strategic Advisory Platform
-            </h1>
+            <div className="flex flex-col">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Strategy Wizard
+              </div>
+              <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text">
+                Strategic Advisory Platform
+              </h1>
+            </div>
           </div>
           <button
             onClick={handleRestart}
