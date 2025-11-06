@@ -65,7 +65,9 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
             </h2>
           </div>
           <p className="text-sm text-muted-foreground ml-15">
-            Step {currentStep > totalSteps ? totalSteps : currentStep} of {totalSteps}
+            {currentStep > totalSteps 
+              ? `All ${totalSteps} steps completed` 
+              : `Step ${currentStep} of ${totalSteps}`}
           </p>
         </div>
 
