@@ -144,15 +144,15 @@ export default function Index() {
           step4: { ...prev.step4, strategies: result.strategies },
         }));
 
+        setIsAwaitingApiResponse(false);
         addMessage(BOT, "I've analyzed your input and generated the following strategic pillars and strategies based on it.");
         addMessage(BOT, { type: 'pillars', data: combinedPillars });
         addMessage(BOT, { type: 'strategies', data: result.strategies });
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
         addMessage(BOT, `Sorry, I encountered an error: ${errorMessage}. Please try again.`);
-        } finally {
-            setIsAwaitingApiResponse(false);
-        }
+        setIsAwaitingApiResponse(false);
+      }
     }
 
     // After Step 7 (last question), generate final action plan
@@ -163,12 +163,12 @@ export default function Index() {
             console.log('📋 Generating final action plan after step 7');
             const finalPlan = await generateFinalActionPlan(updatedData);
             
+            setIsAwaitingApiResponse(false);
             addMessage(BOT, "Perfect! I've compiled everything into a comprehensive action plan for you.");
             addMessage(BOT, { type: 'actionPlan', data: finalPlan } as any);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
             addMessage(BOT, `Sorry, I encountered an error generating the final plan: ${errorMessage}`);
-        } finally {
             setIsAwaitingApiResponse(false);
         }
     }

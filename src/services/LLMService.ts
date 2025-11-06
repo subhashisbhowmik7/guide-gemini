@@ -249,8 +249,9 @@ Return ONLY valid JSON in this exact format:
     const data = await response.json();
     console.log('✅ AZUREOPENAI API final plan response:', data);
 
-    const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const textContent = data.choices?.[0]?.message?.content?.trim();
     if (!textContent) {
+      console.error('❌ No text content in AZUREOPENAI response:', data);
       throw new Error('Invalid response format from AZUREOPENAI API');
     }
 

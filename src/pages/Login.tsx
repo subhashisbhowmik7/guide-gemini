@@ -9,12 +9,19 @@ import { useEffect } from "react";
 const Login = () => {
   const { instance, accounts } = useMsal();
   const navigate = useNavigate();
+  const isDevMode = import.meta.env.VITE_DEV_MODE === 'true';
 
   useEffect(() => {
+    // In dev mode, skip login and go directly to app
+    if (isDevMode) {
+      navigate("/");
+      return;
+    }
+    
     if (accounts.length > 0) {
       navigate("/");
     }
-  }, [accounts, navigate]);
+  }, [accounts, navigate, isDevMode]);
 
   const handleLogin = async () => {
     try {
