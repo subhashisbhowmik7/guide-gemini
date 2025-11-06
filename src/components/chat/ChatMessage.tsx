@@ -48,8 +48,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       if (type === 'actionPlan') {
         return (
           <div className="space-y-6 animate-fade-in-up">
-            <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text">
-              Here's your Strategic Action Plan
+            <h3 className="text-2xl font-bold bg-gradient-primary">
+              Your Strategic Action Plan
             </h3>
             <div className="gradient-card p-6 rounded-2xl border border-border">
               <p className="text-foreground leading-relaxed mb-6 text-lg">{data.summary}</p>
