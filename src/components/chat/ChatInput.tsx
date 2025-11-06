@@ -133,7 +133,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, disabled, isBotTyping, 
                   {opt.label}
                 </span>
                 {checkedItems.includes(opt.value) && (
-                  <span className="text-primary font-bold animate-scale-in">✓</span>
+                  <span className="text-primary font-bold animate-scale-in"></span>
                 )}
               </label>
             ))}

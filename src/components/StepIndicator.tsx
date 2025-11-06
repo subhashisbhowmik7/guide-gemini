@@ -135,7 +135,6 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
                     {step.label}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
-                    {isCompleted && <span className="text-primary font-bold">✓</span>}
                     {isCurrent && (
                       <span className="flex gap-0.5">
                         <span className="w-1 h-1 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -186,7 +185,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
                     : 'text-muted-foreground/50'
                 }`}
               >
-                {milestone === 100 ? '🎉' : `${milestone}%`}
+                {milestone === 100 ? 'Done' : `${milestone}%`}
               </div>
             ))}
           </div>
