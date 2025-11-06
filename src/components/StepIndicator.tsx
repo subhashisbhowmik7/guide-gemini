@@ -45,7 +45,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
     },
   ];
 
-  const progress = (currentStep / totalSteps) * 100;
+  const progress = currentStep > totalSteps ? 100 : Math.min(((currentStep - 1) / totalSteps) * 100, 100);
 
   return (
     <div className="h-full glass-effect rounded-3xl shadow-elevated p-6 border border-border/30 sticky top-4 overflow-y-auto relative">
@@ -65,14 +65,14 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
             </h2>
           </div>
           <p className="text-sm text-muted-foreground ml-15">
-            Step {currentStep} of {totalSteps}
+            Step {currentStep > totalSteps ? totalSteps : currentStep} of {totalSteps}
           </p>
         </div>
 
         <div className="space-y-2 mb-8">
           {steps.map((step, index) => {
-            const isCompleted = step.number < currentStep;
-            const isCurrent = step.number === currentStep;
+            const isCompleted = step.number < currentStep || (step.number === totalSteps && currentStep > totalSteps);
+            const isCurrent = step.number === currentStep && currentStep <= totalSteps;
 
             return (
               <div

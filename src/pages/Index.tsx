@@ -87,8 +87,8 @@ export default function Index() {
 
   const getNextBotMessage = useCallback((index: number) => {
     if (index >= conversationFlow.length) {
-      // All steps completed - set to final step
-      setCurrentStep(TOTAL_STEPS);
+      // All steps completed - mark the final step as complete
+      setCurrentStep(TOTAL_STEPS + 1);
       addMessage(BOT, "Thank you! You've completed the strategy session. You can now start over.", [], false);
       return;
     }
@@ -129,7 +129,7 @@ export default function Index() {
     // HANDLE STEP 2 COMPLETION - Generate Pillars and Strategies
     if (currentPoint.key === 'actual') {
       setIsAwaitingApiResponse(true);
-      addLoadingMessage('Generating your strategy with AI...');
+      const loadingId = addLoadingMessage('Generating your strategy with AI...');
       
       try {
         console.log('🔄 Calling API to generate pillars and strategies...');
@@ -201,11 +201,8 @@ export default function Index() {
         setWizardData(newWizardData);
         
         // Remove loading message and stop API state
-        removeLoadingMessage();
+        setMessages(prev => prev.filter(m => m.id !== loadingId));
         setIsAwaitingApiResponse(false);
-        
-        // Small delay to ensure state updates
-        await new Promise(resolve => setTimeout(resolve, 50));
         
         addMessage(BOT, "I've analyzed your input and generated the following strategic pillars and strategies based on it.");
         addMessage(BOT, { type: 'pillars', data: allPillars });
@@ -229,7 +226,7 @@ export default function Index() {
     // HANDLE STEP 7 COMPLETION - Generate Final Action Plan
     if (currentPoint.key === 'recircleActions') {
         setIsAwaitingApiResponse(true);
-        addLoadingMessage('Creating your comprehensive action plan...');
+        const loadingId = addLoadingMessage('Creating your comprehensive action plan...');
         
         try {
             console.log('📋 Generating final action plan after step 7');
@@ -237,11 +234,11 @@ export default function Index() {
             console.log('✅ Final plan received:', finalPlan);
             
             // Remove loading message and stop API state
-            removeLoadingMessage();
+            setMessages(prev => prev.filter(m => m.id !== loadingId));
             setIsAwaitingApiResponse(false);
             
-            // Small delay to ensure state updates
-            await new Promise(resolve => setTimeout(resolve, 50));
+            // Mark final step as complete by setting to next step
+            setCurrentStep(TOTAL_STEPS + 1);
             
             addMessage(BOT, "Perfect! I've compiled everything into a comprehensive action plan for you.");
             addMessage(BOT, { type: 'actionPlan', data: finalPlan } as any);
@@ -254,10 +251,10 @@ export default function Index() {
             addMessage(BOT, `Sorry, I encountered an error generating the final plan: ${errorMessage}`);
         }
         
-        // Move to completion
-        const nextIndex = conversationIndex + 1;
-        setConversationIndex(nextIndex);
-        getNextBotMessage(nextIndex);
+        // Complete the wizard
+        setConversationIndex(conversationFlow.length);
+        setCurrentStep(TOTAL_STEPS + 1);
+        addMessage(BOT, "Thank you! You've completed the strategy session. You can now start over.", [], false);
         return; // Exit early
     }
     
@@ -295,7 +292,7 @@ export default function Index() {
   return (
     <div className="flex flex-col lg:flex-row items-stretch justify-center min-h-screen gap-6 p-2 md:p-4 max-w-[1600px] mx-auto">
       <div className="lg:w-80 flex-shrink-0 h-[95vh]">
-        <StepIndicator currentStep={currentStep > TOTAL_STEPS ? TOTAL_STEPS : currentStep} totalSteps={TOTAL_STEPS} />
+        <StepIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />
       </div>
 
       <div className="flex-1 h-[95vh] flex flex-col glass-effect rounded-3xl shadow-elevated overflow-hidden border border-border/30">
