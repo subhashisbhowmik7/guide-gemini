@@ -301,8 +301,8 @@ ${Array.isArray(wizardData.step3.pillars) ? wizardData.step3.pillars.map(p => `-
 ${Array.isArray(wizardData.step4.strategies) ? wizardData.step4.strategies.map(s => `- ${s.title}: ${s.description}`).join('\n') : 'None yet'}
 
 **Task:**
-Create a comprehensive final action plan with:
-1. A summary paragraph (75-125 words) explaining the overall strategic direction and approach
+Create a super comprehensive and detailed final action plan with:
+1. A summary paragraph explaining the overall strategic direction and approach
 2. 5-7 actionable categories such as:
    - "Immediate Actions (Week 1-2)"
    - "30-Day Plan"
@@ -315,7 +315,7 @@ Create a comprehensive final action plan with:
 
 Return ONLY valid JSON in this exact format:
 {
-  "summary": "comprehensive summary paragraph here (75-125 words)",
+  "summary": "comprehensive summary paragraph here (150-170 words)",
   "actionPlan": [
     {
       "category": "Immediate Actions (Week 1-2)",
